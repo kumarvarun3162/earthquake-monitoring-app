@@ -35,3 +35,32 @@ A Python Flask-based web application that fetches recent earthquake data from th
 ```bash
 git clone https://github.com/your-username/earthquake-monitoring-app.git
 cd earthquake-monitoring-app
+
+```
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+
+```
+### 3.  Create MySQL Database
+```sql
+CREATE DATABASE earthquake_data;
+
+USE earthquake_data;
+
+CREATE TABLE earthquake (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    magnitude FLOAT,
+    location VARCHAR(255),
+    area VARCHAR(255),
+    time DATETIME,
+    country VARCHAR(100),
+    latitude FLOAT,
+    longitude FLOAT
+);
+
+```
+### 4. Run the App
+```bash
+python app.py
+
