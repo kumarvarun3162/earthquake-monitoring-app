@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Earthquake Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background-color: #2f3640;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin: 20px;
+            text-align: center;
+        }
+
+        select {
+            padding: 10px 16px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        select:hover {
+            border-color: #888;
+        }
+
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>🌍 Earthquake Locations</header>
+
+    <div class="controls">
+        <label for="timeRange"><strong>Select Time Range:</strong></label>
+        <select id="timeRange">
+            <option value="1">Last 1 hour</option>
+            <option value="2">Last 2 hours</option>
+            <option value="6">Last 6 hours</option>
+            <option value="12">Last 12 hours</option>
+            <option value="24">Last 24 hours</option>
+        </select>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered globally
+        const map = L.map('map').setView([20.5937, 78.9629], 3);  // India view
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        // Function to load earthquake data from backend
+        async function loadEarthquakes(hours) {
+            try {
+                const response = await fetch(`/get_earthquakes?hours=${hours}`);
+                const earthquakes = await response.json();
+
+                // Remove old markers
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Add markers for each earthquake
+                earthquakes.forEach(eq => {
+                    const marker = L.marker([eq.latitude, eq.longitude]).addTo(map);
+                    marker.bindPopup(`
+                        <strong>Location:</strong> ${eq.location}<br>
+                        <strong>Magnitude:</strong> ${eq.magnitude}<br>
+                        <strong>Time:</strong> ${eq.time}
+                    `);
+                });
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("Could not load earthquake data.");
+            }
+        }
+
+        // Load default (last 1 hour) earthquakes when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            loadEarthquakes(1);
+        });
+
+        // Update data when dropdown changes
+        document.getElementById('timeRange').addEventListener('change', (event) => {
+            const selectedHours = event.target.value;
+            loadEarthquakes(selectedHours);
+        });
+    </script>
+
+</body>
+</html>
