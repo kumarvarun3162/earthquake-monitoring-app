@@ -17,7 +17,7 @@ def fetch_and_store_earthquake_data():
     # Parameters for USGS API
     parameters = {
         'format': 'geojson',
-        "starttime": '2025-04-01',
+        "starttime": '2026-03-01',
         "endtime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
         "minmagnitude": 3.5
     }
